@@ -1,0 +1,455 @@
+
+import javafx.application.Application;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+
+import javafx.stage.Stage;
+
+import java.util.ArrayList;
+
+public class Main extends Application {
+
+    Pane pane = new Pane();
+    Scene scene = new Scene(pane, 1000, 600);
+
+    ArrayList<Section> sections = new ArrayList<>();
+    ArrayList<ArrayList<Product>> productsOfSections = new ArrayList<>();
+
+    String srcs[] = {"coca-cola", "fanta", "sprite","Водка-финляндия","vodka2","vodka3","makarons1","makarons2","makarons3","овсянка","гречка","рис","самса","крауасаны",
+            "пирожки","творог","йогурт","кефир","сникерс","твикс","киткат","ведро","перчатки","фейри","парламент","бонд","гламур"};
+    String names[] = {"Кока-кола", "Фанта", "Спрайт","Финляндия","Absolute","Байкальская",
+            "Султан","Макфа","Макароны с сырным соусом","Овсянка","Гречка","Рис","Самса","Круасаны","Пирожки","Творог","Йогурт",
+            "Кефир","Сникерс","Твикс","Киткат","Ведро","Перчатки","Фейри","Парламент","Бонд","Гламур"};
+
+    String sectionsName[] = {"Напитки", "Спиртное", "Макароны", "Крупы", "Мучное изделие",
+            "Молочное изделие", "Шоколады", "Хоз товары", "Табачное изделие"
+    };
+    int price[] = {210, 210, 210,800,600,1500,250,260,500,180,200,300,100,100,120,20,180,250,250,250,240,2000,500,800,500,250,430};
+    Pane paneWelcome = new Pane();
+
+    int itemCount = 0;
+
+    Button btnBox = new Button("Корзина("+itemCount+")");
+
+    ArrayList<Product>productsOfBox = new ArrayList<>();
+    Pane section = new Pane();
+    Label priceLabel;
+    Button btnZakazat = new Button("Тапсырыс беру");
+
+    int sum = 0;
+
+
+
+
+
+
+    public void start(Stage window)
+    {
+        Label boxLabel = new Label("Корзина");
+        boxLabel.setTranslateX(300);
+        boxLabel.setTranslateY(-50);
+        window.setResizable(false);
+
+        //все компоненты нашей сцены
+        scene.getStylesheets().add(getClass().getResource("style.css").toString());
+        Image image = new Image(getClass().getResourceAsStream("магнум.jpg"));
+        ImageView imageView = new ImageView(image);
+        imageView.setFitHeight(50);
+        imageView.setFitWidth(140);
+        Button btnMagnum = new Button("",imageView);
+        pane.getChildren().add(btnMagnum);
+        btnMagnum.setMaxHeight(50);
+        btnMagnum.setMaxWidth(130);
+
+
+        btnBox.setStyle("-fx-border-radius:50px");
+        btnBox.setMinWidth(80);
+        btnBox.setMinHeight(50);
+        btnBox.setTranslateX(920);
+        pane.getChildren().add(btnBox);
+
+
+
+
+        Label label = new Label("Қазақстандағы №1 бөлшек-сауда желісі");
+        label.setStyle("-fx-font-size:23pt;-fx-text-fill:\n" +
+                "#ffffff\n;-fx-font-weight: bold;");
+        pane.getChildren().add(label);
+        label.setTranslateX(270);
+        label.setTranslateY(70);
+
+
+        paneWelcome.setMinHeight(500);
+        paneWelcome.setMinWidth(700);
+        Label labelWelcome = new Label("Magnum интернет-дүкеніне қош келдіңіз !\n \nБіз сізге нарықтағы ең тиімді бағаларды ұсынамыз\nСапаға 100% кепілдік береміз\n" +
+                "Бізден барлық қалауыңызды, тиімді бағада ала аласыз\n" +
+                "Есігіңізге дейін тегін жеткізіп беруге әзірміз !\n");
+
+        labelWelcome.setStyle("-fx-font-size:19pt;-fx-text-fill:\n" +
+                "#ffffff\n;-fx-font-weight: bold;");
+
+        labelWelcome.setMaxWidth(700);
+
+        paneWelcome.getChildren().add(labelWelcome);
+        pane.getChildren().add(paneWelcome);
+        paneWelcome.setTranslateX(240);
+        paneWelcome.setTranslateY(200);
+
+
+        for (int i = 0; i < 9; i++) {
+            productsOfSections.add(new ArrayList<Product>());
+        }
+
+        int indexOfSectionName = 0;
+
+
+        //создаем продукты
+        for (int i = 0; i < srcs.length; i+=3) {
+
+            for (int j = 0 ; j < 3; j++){
+
+                if(i+j >= srcs.length)
+                    break;
+
+                Product product = new Product(names[i+j], price[i+j], srcs[i+j] + ".jpg");
+                productsOfSections.get(i/3).add(product);
+
+            }
+
+            sections.add(new Section(productsOfSections.get(i/3), sectionsName[indexOfSectionName]));
+            indexOfSectionName++;
+
+        }
+
+
+
+
+
+
+        ShopMenu shopMenu = new ShopMenu();
+        shopMenu.setTranslateY(150);
+
+        for (int i = 0 ; i < shopMenu.buttons.size() ; i++){
+
+            addAction(sections,pane,shopMenu.buttons,i);
+
+        }
+
+        //когда нажимаешь на кнопку Магнум
+        btnMagnum.setOnAction(e->{
+
+            for (int i = 0 ; i < sections.size() ; i++){
+                pane.getChildren().remove(sections.get(i));
+            }
+
+            if(pane.getChildren().contains(paneWelcome))
+                pane.getChildren().remove(paneWelcome);
+
+            section.getChildren().remove(priceLabel);
+
+            pane.getChildren().remove(section);
+            pane.getChildren().add(paneWelcome);
+
+        });
+
+        //когда нажимаешь на кнопку корзина ...
+        btnBox.setOnAction(e->{
+            for (int i = 0 ; i < sections.size() ; i++){
+                pane.getChildren().remove(sections.get(i));
+            }
+
+            if(pane.getChildren().contains(paneWelcome))
+                pane.getChildren().remove(paneWelcome);
+
+            if (pane.getChildren().contains(section))
+                pane.getChildren().remove(section);
+
+            pane.getChildren().add(section);
+            VBox box = new VBox();
+
+
+            //создаем продукты
+            for (int i = 0 ; i < productsOfBox.size() ; i++){
+                Label labelName = new Label(productsOfBox.get(i).name);
+                labelName.setMinWidth(300);
+                labelName.setStyle("-fx-font-size:13pt");
+                Label labelPrice = new Label(productsOfBox.get(i).price+"тг");
+                labelPrice.setStyle("-fx-font-size:13pt;-fx-text-alignment:right;");
+                HBox hBox = new HBox(labelName,labelPrice);
+                hBox.setStyle("-fx-border-color:black;-fx-border-width: 1.3;");
+                hBox.setSpacing(100);
+                box.getChildren().add(hBox);
+                sum += productsOfBox.get(i).price;
+            }
+
+            ScrollPane scrollPane = new ScrollPane();
+            scrollPane.setContent(box);
+            scrollPane.setTranslateX(100);
+            scrollPane.setMaxWidth(466);
+            priceLabel = new Label(" итог : " + sum + " тг");
+            priceLabel.setStyle("-fx-font-size:25pt");
+
+            section.getChildren().add(priceLabel);
+            priceLabel.setTranslateY(317);
+            priceLabel.setTranslateX(100);
+
+            section.getChildren().add(scrollPane);
+            scrollPane.setMaxHeight(300);
+            scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+            section.setTranslateY(200);
+            section.setTranslateX(240);
+            section.getChildren().add(btnZakazat);
+            btnZakazat.setTranslateY(300);
+            btnZakazat.setTranslateX(350);
+            btnZakazat.setMinHeight(50);
+            btnZakazat.setMinWidth(130);
+        });
+
+        //добавляем продукты в лист
+       for (int i = 0 ; i < sections.size() ; i++){
+
+           for (int j = 0 ; j < sections.get(i).products.size() ; j++){
+
+               addToList(productsOfBox,i,j);
+
+           }
+
+       }
+
+        //кнопка Заказать открывает это окно
+       btnZakazat.setOnAction(e->{
+           OrderStage orderStage = new OrderStage(sum);
+
+       });
+
+
+
+
+        pane.getChildren().add(shopMenu);
+        pane.setId("bigPane");
+        window.setScene(scene);
+        window.show();
+
+    }
+
+    //добавляем каждой кнопке свойство
+    public void addAction(ArrayList<Section>sections,Pane pane,ArrayList<Button> buttons,int index){
+
+        buttons.get(index).setOnAction(e->
+        {
+            pane.getChildren().remove(paneWelcome);
+
+            for (int i = 0 ; i < sections.size() ; i++){
+                pane.getChildren().remove(sections.get(i));
+            }
+
+            pane.getChildren().remove(section);
+            section.getChildren().remove(priceLabel);
+
+
+            pane.getChildren().add(sections.get(index));
+            sections.get(index).setTranslateY(200);
+            sections.get(index).setTranslateX(240);
+
+        });
+
+    }
+
+    //когда нажимаешь на кнопку добавить в корзина - продукт добавляется в корзину
+    public void addToList(ArrayList<Product>boxList,int i,int j){
+        sections.get(i).products.get(j).btnInfo.setOnAction(e->{
+            Product product = new Product(sections.get(i).products.get(j).name,sections.get(i).products.get(j).price,sections.get(i).products.get(j).src);
+            boxList.add(product);
+
+            btnBox.setText("Корзина("+boxList.size()+")");
+        });
+    }
+}
+
+
+//меню слева
+class ShopMenu extends VBox {
+    ArrayList<Button> buttons = new ArrayList<>();
+    String sections[] = {"Сусындар", "Шараптар", "Макарондар", "Жарма", "Ұн өнімдері",
+            "Сүт өнімдері", "Шоколадтар", "Хоз товарлар", "Темекі өнімдері"
+    };
+
+    public ShopMenu() {
+
+        this.setWidth(200);
+        this.setHeight(700);
+
+        for (int i = 0; i < sections.length; i++) {
+
+            Button btn = new Button(sections[i]);
+            this.getChildren().add(btn);
+            buttons.add(btn);
+            btn.setMinWidth(140);
+            btn.setMinHeight(40);
+
+        }
+
+    }
+}
+
+
+//окно которое появляется когда мы делаем заказ
+class OrderStage extends Stage{
+    int price;
+    public OrderStage(int price){
+        this.price = price;
+        //about first scene
+        Pane pane = new Pane();
+
+        Label label = new Label("Доставка үшін мекенжайыңызды жазыңыз:");
+        label.setStyle("-fx-font-size:11pt;-fx-text-fill:\n" +
+                "#000000\n;"+"-fx-background-color:" +
+                "#f27671;");
+        TextField textField = new TextField();
+        HBox hBox = new HBox(label,textField);
+
+        hBox.setTranslateY(75);
+        hBox.setTranslateX(15);
+
+
+
+        Button button = new Button("Дайын");
+        Button buttonExit = new Button("Шығу");
+        HBox hBoxButtons = new HBox(button,buttonExit);
+        hBoxButtons.setTranslateX(155);
+        hBoxButtons.setTranslateY(125);
+
+
+
+
+
+        //about second scene
+        button.setOnAction(e->{
+
+            hBox.getChildren().removeAll(label,textField);
+            hBox.getChildren().add(new Label("Бір сағат ішінде тапсырысыңыз келеді: " + this.price + "тг\nжеткізілетін мекенжай: "+textField.getText()));
+
+            hBoxButtons.getChildren().remove(button);
+        });
+
+
+
+        buttonExit.setOnAction(e->{
+            this.close();
+        });
+
+
+        pane.getChildren().addAll(hBox,hBoxButtons);
+        Scene scene = new Scene(pane,450,350);
+        this.setScene(scene);
+        this.show();
+    }
+}
+
+
+// Создаем объект Секция ,каждая секция имеет свой лист продуктов и название секции
+class Section extends Pane {
+
+    ArrayList<Product> products;
+    String name;
+
+    public Section(ArrayList<Product> products, String name) {
+
+        this.products = products;
+        this.name = name;
+
+        Label label = new Label(name);
+        label.setStyle("-fx-font-size:20pt;-fx-text-fill:\n" +
+                "#ffffff\n;-fx-font-weight: bold;");
+
+        this.getChildren().add(label);
+        label.setTranslateX(240);
+        label.setTranslateY(-70);
+        for (int i = 0; i < this.products.size(); i += 3) {
+            HBox hBox = new HBox();
+            hBox.setSpacing(30);
+            for (int j = 0; j < 3; j++) {
+                if (i + j >= products.size())
+                    break;
+                hBox.getChildren().add(products.get(i + j));
+            }
+            hBox.setSpacing(60);
+            hBox.setTranslateY(i * 250);
+            this.getChildren().add(hBox);
+        }
+
+        this.setMinHeight(500);
+        this.setMinWidth(700);
+
+    }
+}
+
+
+class Product extends Pane {
+
+    String src;
+    ImageView productImg;
+    String name ;
+    int price;
+    Label priceLabel;
+    Label nameLabel;
+    Button btnInfo = new Button("Корзинаға");
+
+
+    //Создаем объект продукта
+    public Product(String name, int price, String src) {
+        this.src = src;
+        this.name = name;
+        this.price = price;
+        this.priceLabel = new Label(price + " тг");
+        this.nameLabel = new Label(name);
+        this.nameLabel.setStyle("-fx-font-size:14pt;-fx-text-fill:\n" +
+                "#ffffff\n;-fx-font-weight: bold;");
+        this.productImg = new ImageView(new Image(getClass().getResourceAsStream(src)));
+        this.setPrefHeight(300);
+        this.setPrefWidth(170);
+
+        this.getChildren().add(this.productImg);
+        this.getChildren().add(this.priceLabel);
+        this.getChildren().add(this.nameLabel);
+
+        this.priceLabel.setTranslateY(20);
+        this.priceLabel.setTranslateX(5);
+
+        this.productImg.setFitHeight(180);
+        this.productImg.setFitWidth(160);
+        this.productImg.setTranslateX(5);
+        this.productImg.setTranslateY(20);
+
+        this.nameLabel.setTranslateY(210);
+        this.nameLabel.setMinWidth(170);
+        this.nameLabel.setMaxWidth(171);
+        this.nameLabel.setAlignment(Pos.CENTER);
+
+        btnInfo.setMinHeight(30);
+        btnInfo.setMinWidth(80);
+
+        HBox hBox = new HBox();
+        hBox.getChildren().addAll( btnInfo);
+        this.getChildren().add(hBox);
+        hBox.setTranslateX(50);
+        hBox.setTranslateY(250);
+
+        this.setStyle("-fx-border-color:black;-fx-border-radius:10px;" +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.8), 10, 0, 0, 0);" +
+                "-fx-background-color:" +
+                "#f27671;");
+
+    }
+
+
+}
